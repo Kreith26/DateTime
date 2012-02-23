@@ -1,20 +1,47 @@
 #ifndef _DateTime_H_
 #define _DateTime_H_
 
-#include <iostream>
-#include <string>
+#include "TimeSpan.h"
 
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <string>
 #include <time.h>
 
 // Since
 #define SINCE_YEAR               1900
 
 // Summertime
-#define SUMMERTIME_BEGIN_DAY       27
 #define SUMMERTIME_BEGIN_MONTH      3
-
-#define SUMMERTIME_END_DAY         30
 #define SUMMERTIME_END_MONTH       10
+
+enum Day
+{
+  Monday,
+  Thuesday,
+  Wednesday,
+  Thursday,
+  Friday,
+  Saturday,
+  Sunday
+};
+
+enum Month
+{
+  January    = 1,
+  February,
+  March,
+  April,
+  May,
+  June,
+  July,
+  August,
+  September,
+  October,
+  November,
+  December
+};
 
 class DateTime
 {
@@ -22,114 +49,65 @@ class DateTime
     DateTime( );
     DateTime( time_t timestamp );
     DateTime( int day, int month, int year );
-    DateTime( int day, int month, int year, int seconds, int minutes, int hours );
+    DateTime( int day, int month, int year, int hours, int minutes, int seconds );
+    DateTime( int day, int month, int year, int hours, int minutes, int seconds, int milliseconds );
 
     virtual ~DateTime( );
-
     static DateTime *Now( );
 
-    int GetSeconds( ) { return seconds; }
-    int GetMinutes( ) { return minutes; }
-    int GetHours( ) { return hours; }
+    void SetNow( );
+    void SetWithTimestamp( time_t timestamp );
 
-    int GetDay( ) { return day; }
-    int GetMonth( ) { return month; }
     int GetYear( ) { return year; }
+    int GetMonth( ) { return month; }
+    int GetDay( ) { return day; }
 
-    int GetDayOfWeek( );
-    int GetDayOfYear( );
+    int GetHour( ) { return hour; }
+    int GetMinute( ) { return minute; }
+    int GetSecond( ) { return second; }
 
-    bool IsSummertime( );
-
-    void AddSeconds( int seconds );
-    void AddMinutes( int minutes );
-    void AddHours( int hours );
-
-    void AddDays( int days );
-    void AddMonths( int months );
+    void Add( const TimeSpan &ts );
     void AddYears( int years );
+    void AddMonths( int months );
+    void AddDays( int days );
+    void AddHours( int hours );
+    void AddMinutes( int minutes );
+    void AddSeconds( int seconds );
+    void AddMilliseconds( int milliseconds );
 
-    int GetTotalSeconds( );
-    int GetTotalMinutes( );
-    int GetTotalHours( );
-    int GetTotalDays( );
-    int GetTotalMonths( );
-    int GetTotalYears( );
+    bool IsSummertime( ) { return summertime; }
+    bool IsLeapYear( ) { return leapyear; }
+
+    static bool IsDateSummertime( int day, int month );
+    static bool IsYearLeapYear( int year );
+
+    bool operator<( const DateTime &dt ) const;
+    bool operator>( const DateTime &dt ) const;
+    bool operator<=( const DateTime &dt ) const;
+    bool operator>=( const DateTime &dt ) const;
+    bool operator==( const DateTime &dt ) const;
+
+    DateTime operator+( const TimeSpan &ts ) const;
+    DateTime operator-( const TimeSpan &ts ) const;
+    TimeSpan operator-( const DateTime &dt ) const;
+    void operator+=( const TimeSpan &ts );
+    void operator-=( const TimeSpan &ts );
 
     std::string GetShortTimeString( );
     std::string GetLongTimeString( );
     std::string GetShortDateString( );
     std::string GetLongDateString( );
 
-    bool IsYearLeapYear( int year );
-    bool IsDateSummertime( int day, int month );
-
-    // Nested Date class
-    class Date
-    {
-      public:
-        Date( );
-        ~Date( );
-
-      protected:
-        int day;
-        int month;
-        int year;
-    };
-
-    // Nested Time class
-    class Time
-    {
-      public:
-        Time( );
-        ~Time( );
-
-      protected:
-        int seconds;
-        int minutes;
-        int years;
-    };
-
-    enum Day
-    {
-      Monday,
-      Thuesday,
-      Wednesday,
-      Thursday,
-      Friday,
-      Saturday,
-      Sunday
-    };
-
-    enum Month
-    {
-      January,
-      February,
-      March,
-      April,
-      May,
-      June,
-      July,
-      August,
-      September,
-      October,
-      November,
-      December
-    };
-
   protected:
-    time_t timestamp;
+    void Init( int day, int month, int year, int hours, int minutes, int seconds, int milliseconds );
 
-    int seconds;
-    int minutes;
-    int hours;
-
-    int day;
-    int month;
     int year;
-
-    int weekday;
-    int yearday;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
 
     bool summertime;
     bool leapyear;

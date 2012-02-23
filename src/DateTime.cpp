@@ -1,53 +1,61 @@
 #include "DateTime.h"
 
-#include <iomanip>
-#include <sstream>
-
 DateTime::DateTime( )
 {
-  DateTime( 0, 0, 0, 0, 0, 0 );
+  Init( 0, 0, 0, 0, 0, 0, 0 );
 }
 
 DateTime::DateTime( int day, int month, int year )
 {
-  DateTime( day, month, year, 0, 0, 0 );
+  Init( day, month, year, 0, 0, 0, 0 );
 }
 
-DateTime::DateTime( int day, int month, int year, int seconds, int minutes, int hours )
-  : seconds( seconds ),
-    minutes( minutes ),
-    hours( hours ),
-    day( day ),
-    month( month ),
-    year( year )
+DateTime::DateTime( int day, int month, int year, int hour, int minute, int second )
 {
-  summertime = IsDateSummertime( day, month );
-  leapyear   = IsYearLeapYear( year );
+  Init( day, month, year, hour, minute, second, 0 );
+}
+
+DateTime::DateTime( int day, int month, int year, int hour, int minute, int second, int millisecond )
+{
+  Init( day, month, year, hour, minute, second, millisecond );
 }
 
 DateTime::DateTime( time_t timestamp )
 {
-  struct tm time = *localtime( &timestamp );
-  seconds    = time.tm_sec;
-  minutes    = time.tm_min;
-  hours      = time.tm_hour;
+  SetWithTimestamp( timestamp );
+}
 
-  day        = time.tm_mday;
-  month      = time.tm_mon + 1;
-  year       = time.tm_year + SINCE_YEAR;
+void DateTime::Init( int day, int month, int year, int hour, int minute, int second, int millisecond )
+{
+  this->day         = day;
+  this->month       = month;
+  this->year        = year;
 
-  weekday    = time.tm_wday;
-  yearday    = time.tm_yday;
-
-  summertime = time.tm_isdst > 0;
-  leapyear   = IsYearLeapYear( year );
+  this->hour        = hour;
+  this->minute      = minute;
+  this->second      = second;
+  this->millisecond = millisecond;
 }
 
 DateTime::~DateTime( ) { }
 
 DateTime *DateTime::Now( )
 {
-  return new DateTime( time( 0 ) );
+  DateTime *dt = new DateTime( );
+  dt->SetNow( );
+  return dt;
+}
+
+void DateTime::SetNow( )
+{
+  SetWithTimestamp( time( 0 ) );
+}
+
+void DateTime::SetWithTimestamp( time_t timestamp )
+{
+  struct tm time = *localtime( &timestamp );
+
+  Init( time.tm_mday, time.tm_mon + 1, time.tm_year + SINCE_YEAR, time.tm_hour, time.tm_min, time.tm_sec, 0 );
 }
 
 bool DateTime::IsYearLeapYear( int year )
@@ -71,21 +79,27 @@ bool DateTime::IsDateSummertime( int day, int month )
 std::string DateTime::GetShortTimeString( )
 {
   std::stringstream ss( std::stringstream::in | std::stringstream::out );
-  ss << std::setfill( '0' ) << std::setw( 2 ) << hours << ":" << std::setw( 2 ) << minutes << ":" << std::setw( 2 ) << seconds;
+  ss << std::setfill( '0' ) << std::setw( 2 ) << hour << ":" << std::setw( 2 ) << minute << ":" << std::setw( 2 ) << second;
   return ss.str( );
 }
 
 std::string DateTime::GetLongTimeString( )
 {
-  // FIXME: Different from GetShortTimeString( ) ?
   std::stringstream ss( std::stringstream::in | std::stringstream::out );
-  ss << std::setfill( '0' ) << std::setw( 2 ) << hours << ":" << std::setw( 2 ) << minutes << ":" << std::setw( 2 ) << seconds;
+  ss << std::setfill( '0' ) << std::setw( 2 ) << hour << ":" << std::setw( 2 ) << minute << ":" << std::setw( 2 ) << second << ":" << std::setw( 2 ) << millisecond;
   return ss.str( );
 }
 
 std::string DateTime::GetShortDateString( )
 {
   std::stringstream ss( std::stringstream::in | std::stringstream::out );
-  ss << std::setfill( '0' ) << std::setw( 2 ) << day << ":" << std::setw( 2 ) << month << ":" << year;
+  ss << std::setfill( '0' ) << std::setw( 2 ) << day << "." << std::setw( 2 ) << month << "." << year;
+  return ss.str( );
+}
+
+std::string DateTime::GetLongDateString( )
+{
+  std::stringstream ss( std::stringstream::in | std::stringstream::out );
+  ss << std::setfill( '0' ) << std::setw( 2 ) << day << "." << std::setw( 2 ) << month << "." << year;
   return ss.str( );
 }
