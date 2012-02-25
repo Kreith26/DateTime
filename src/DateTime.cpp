@@ -78,7 +78,7 @@ void DateTime::SetWithTimestamp( time_t timestamp )
 
 time_t DateTime::GetTimestamp( ) const
 {
-  time_t rawtime = time( 0 );
+  time_t rawtime;
   struct tm *time = localtime( &rawtime );
   time->tm_year = year - SINCE_YEAR;
   time->tm_mon  = month - 1;
@@ -87,6 +87,20 @@ time_t DateTime::GetTimestamp( ) const
   time->tm_min  = minute;
   time->tm_sec  = second;
   return mktime( time );
+}
+
+struct tm DateTime::GetTMStruct( ) const
+{
+  time_t rawtime;
+  struct tm *time = localtime( &rawtime );
+  time->tm_year = year - SINCE_YEAR;
+  time->tm_mon  = month - 1;
+  time->tm_mday = day;
+  time->tm_hour = hour;
+  time->tm_min  = minute;
+  time->tm_sec  = second;
+  mktime( time );
+  return *time;
 }
 
 void DateTime::Add( const TimeSpan *ts )
@@ -151,6 +165,16 @@ bool DateTime::IsDateSummertime( int day, int month )
   {
     return false;
   }
+}
+
+Days::Day DateTime::GetDayOfWeek( )
+{
+  return static_cast<Days::Day>( GetTMStruct( ).tm_wday );
+}
+
+int DateTime::GetDayOfYear( )
+{
+  return GetTMStruct( ).tm_yday;
 }
 
 int DateTime::GetDaysOfMonth( int month )

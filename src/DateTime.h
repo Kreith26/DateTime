@@ -82,6 +82,7 @@ class DateTime
     int GetMillisecond( ) const { return millisecond; }
 
     time_t GetTimestamp( ) const;
+    struct tm GetTMStruct( ) const;
 
     // FIXME: Add methods currently just works with positive value
     void Add( const TimeSpan *ts );
@@ -98,6 +99,9 @@ class DateTime
 
     static bool IsDateSummertime( int day, int month );
     static bool IsYearLeapYear( int year );
+
+    Days::Day GetDayOfWeek( );
+    int GetDayOfYear( );
 
     int GetDaysOfMonth( int month );
 
