@@ -1,3 +1,12 @@
+# Files created by cmake
+Build/CMakeFiles
+Build/CMakeCache.txt
+Build/Makefile
+Build/cmake_install.cmake
+
+# Binary files, compiler output
 bin/*
+
+# Vim swap files
 *.swp
 src/*.swp

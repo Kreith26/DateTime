@@ -22,11 +22,11 @@ TimeSpan::TimeSpan( int days, int hours, int minutes, int seconds, int milliseco
 
 void TimeSpan::Init( int days, int hours, int minutes, int seconds, int milliseconds )
 {
-  days         = days;
-  hours        = hours;
-  minutes      = minutes;
-  seconds      = seconds;
-  milliseconds = milliseconds;
+  this->days         = days;
+  this->hours        = hours;
+  this->minutes      = minutes;
+  this->seconds      = seconds;
+  this->milliseconds = milliseconds;
 }
 
 TimeSpan::~TimeSpan( ) { }
@@ -56,27 +56,27 @@ TimeSpan TimeSpan::FromDays( int days )
   return TimeSpan( days, 0, 0, 0, 0 );
 }
 
-double TimeSpan::GetTotalMilliseconds( )
+double TimeSpan::GetTotalMilliseconds( ) const
 {
   return milliseconds + seconds * FACTOR_SEC_TO_MILLI + minutes * FACTOR_MIN_TO_MILLI + hours * FACTOR_HOUR_TO_MILLI + days * FACTOR_DAY_TO_MILLI;
 }
 
-double TimeSpan::GetTotalSeconds( )
+double TimeSpan::GetTotalSeconds( ) const
 {
   return GetTotalMilliseconds( ) / FACTOR_SEC_TO_MILLI;
 }
 
-double TimeSpan::GetTotalMinutes( )
+double TimeSpan::GetTotalMinutes( ) const
 {
   return GetTotalSeconds( ) / FACTOR_MIN_TO_SEC;
 }
 
-double TimeSpan::GetTotalHours( )
+double TimeSpan::GetTotalHours( ) const
 {
   return GetTotalMinutes( ) / FACTOR_HOUR_TO_MIN;
 }
 
-double TimeSpan::GetTotalDays( )
+double TimeSpan::GetTotalDays( ) const
 {
   return GetTotalHours( ) / FACTOR_DAY_TO_HOUR;
 }

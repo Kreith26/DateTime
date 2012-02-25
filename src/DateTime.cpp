@@ -35,6 +35,25 @@ void DateTime::Init( int day, int month, int year, int hour, int minute, int sec
   this->minute      = minute;
   this->second      = second;
   this->millisecond = millisecond;
+
+  InitMonths( );
+}
+
+void DateTime::InitMonths( )
+{
+  // Perhaps an algorithm would be more efficient
+  daysOfMonth[Months::January]   = 31;
+  daysOfMonth[Months::February]  = IsLeapYear( ) ? 29 : 28; // In a leapyear 29 else 28
+  daysOfMonth[Months::March]     = 31;
+  daysOfMonth[Months::April]     = 30;
+  daysOfMonth[Months::May]       = 31;
+  daysOfMonth[Months::June]      = 30;
+  daysOfMonth[Months::July]      = 31;
+  daysOfMonth[Months::August]    = 31;
+  daysOfMonth[Months::September] = 30;
+  daysOfMonth[Months::October]   = 31;
+  daysOfMonth[Months::November]  = 30;
+  daysOfMonth[Months::December]  = 31;
 }
 
 DateTime::~DateTime( ) { }
@@ -54,8 +73,66 @@ void DateTime::SetNow( )
 void DateTime::SetWithTimestamp( time_t timestamp )
 {
   struct tm time = *localtime( &timestamp );
-
   Init( time.tm_mday, time.tm_mon + 1, time.tm_year + SINCE_YEAR, time.tm_hour, time.tm_min, time.tm_sec, 0 );
+}
+
+time_t DateTime::GetTimestamp( ) const
+{
+  time_t rawtime = time( 0 );
+  struct tm *time = localtime( &rawtime );
+  time->tm_year = year - SINCE_YEAR;
+  time->tm_mon  = month - 1;
+  time->tm_mday = day;
+  time->tm_hour = hour;
+  time->tm_min  = minute;
+  time->tm_sec  = second;
+  return mktime( time );
+}
+
+void DateTime::Add( const TimeSpan *ts )
+{
+  AddMilliseconds( ts->GetTotalMilliseconds( ) );
+}
+
+void DateTime::AddYears( int years )
+{
+  year += years;
+}
+
+void DateTime::AddMonths( int months )
+{
+  AddYears( months / MAX_MONTH );
+  month += months % MAX_MONTH;
+}
+
+void DateTime::AddDays( int days )
+{
+  AddMonths( days / MAX_DAY );
+  day += days % MAX_DAY;
+}
+
+void DateTime::AddHours( int hours )
+{
+  AddDays( hours / MAX_HOUR );
+  hour += hours % MAX_HOUR;
+}
+
+void DateTime::AddMinutes( int minutes )
+{
+  AddHours( minutes / MAX_MINUTE );
+  minute += minutes % MAX_MINUTE;
+}
+
+void DateTime::AddSeconds( int seconds )
+{
+  AddMinutes( seconds / MAX_SECOND );
+  second += seconds % MAX_SECOND;
+}
+
+void DateTime::AddMilliseconds( int milliseconds )
+{
+  AddSeconds( milliseconds / MAX_MILLISECOND );
+  millisecond += milliseconds % MAX_MILLISECOND;
 }
 
 bool DateTime::IsYearLeapYear( int year )
@@ -74,6 +151,58 @@ bool DateTime::IsDateSummertime( int day, int month )
   {
     return false;
   }
+}
+
+int DateTime::GetDaysOfMonth( int month )
+{
+  return IsValidMonth( month ) ? daysOfMonth[month] : -1;
+}
+
+bool DateTime::operator<( const DateTime &dt ) const
+{
+  return GetTimestamp( ) < dt.GetTimestamp( );
+}
+
+bool DateTime::operator>( const DateTime &dt ) const
+{
+  return GetTimestamp( ) > dt.GetTimestamp( );
+}
+
+bool DateTime::operator<=( const DateTime &dt ) const
+{
+  return GetTimestamp( ) <= dt.GetTimestamp( );
+}
+
+bool DateTime::operator>=( const DateTime &dt ) const
+{
+  return GetTimestamp( ) >= dt.GetTimestamp( );
+}
+
+bool DateTime::operator==( const DateTime &dt ) const
+{
+  return GetTimestamp( ) == dt.GetTimestamp( );
+}
+
+DateTime DateTime::operator+( const TimeSpan &ts )
+{
+  DateTime *tmp = this;
+  tmp->Add( &ts );
+  return *tmp;
+}
+
+//DateTime DateTime::operator-( const TimeSpan &ts );
+//TimeSpan DateTime::operator-( const DateTime &dt );
+
+void DateTime::operator+=( const TimeSpan &ts )
+{
+  Add( &ts );
+}
+
+//void DateTime::operator-=( const TimeSpan &ts );
+
+std::string DateTime::GetAsString( )
+{
+  return GetShortDateString( ) + std::string( " - " ) + GetShortTimeString( );
 }
 
 std::string DateTime::GetShortTimeString( )
@@ -102,4 +231,31 @@ std::string DateTime::GetLongDateString( )
   std::stringstream ss( std::stringstream::in | std::stringstream::out );
   ss << std::setfill( '0' ) << std::setw( 2 ) << day << "." << std::setw( 2 ) << month << "." << year;
   return ss.str( );
+}
+
+bool DateTime::IsValidDay( int day )
+{
+  return day >= 1 && day <= 31;
+}
+
+bool DateTime::IsValidDayOfMonth( int day, int month )
+{
+  if( IsValidMonth( month ) )
+  {
+    return day >= 1 && day <= GetDaysOfMonth( month );
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool DateTime::IsValidMonth( int month )
+{
+  return month >= 1 && month <= 12;
+}
+
+bool DateTime::IsValidYear( int year )
+{
+  return year >= 0;
 }
