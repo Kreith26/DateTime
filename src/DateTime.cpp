@@ -1,8 +1,21 @@
 #include "DateTime.h"
 
+#include "Exceptions.h"
+
 DateTime::DateTime( )
 {
-  Init( 0, 0, 0, 0, 0, 0, 0 );
+  this->day         = day;
+  this->month       = month;
+  this->year        = year;
+
+  this->hour        = hour;
+  this->minute      = minute;
+  this->second      = second;
+  this->millisecond = millisecond;
+
+  InitMonths( );
+  InitMonthNames( );
+  InitDayNames( );
 }
 
 DateTime::DateTime( int day, int month, int year )
@@ -27,16 +40,49 @@ DateTime::DateTime( time_t timestamp )
 
 void DateTime::Init( int day, int month, int year, int hour, int minute, int second, int millisecond )
 {
+  this->year = year;
+
+  InitMonths( );
+  InitMonthNames( );
+  InitDayNames( );
+
+  if( !IsValidMonth( month ) )
+  {
+    throw Exception( "Month %d is not in range", month );
+  }
+
+  if( !IsValidDayOfMonth( day, month ) )
+  {
+    throw Exception( "Day %d is not in month %d's range", day, month );
+  }
+
+  if( !IsValidHour( hour ) )
+  {
+    throw Exception( "Hour %d is not in valid range ( %d - %d )", hour, MIN_HOUR, MAX_HOUR );
+  }
+
+  if( !IsValidMinute( minute ) )
+  {
+    throw Exception( "Minute %d is not in valid range ( %d - %d )", minute, MIN_MINUTE, MAX_MINUTE );
+  }
+
+  if( !IsValidSecond( second ) )
+  {
+    throw Exception( "Second %d is not in valid range ( %d - %d )", second, MIN_SECOND, MAX_SECOND );
+  }
+
+  if( !IsValidMillisecond( millisecond ) )
+  {
+    throw Exception( "Millisecond %d is not in valid range ( %d - %d )", millisecond, MIN_MILLISECOND, MAX_MILLISECOND );
+  }
+
   this->day         = day;
   this->month       = month;
-  this->year        = year;
 
   this->hour        = hour;
   this->minute      = minute;
   this->second      = second;
   this->millisecond = millisecond;
-
-  InitMonths( );
 }
 
 void DateTime::InitMonths( )
@@ -54,6 +100,33 @@ void DateTime::InitMonths( )
   daysOfMonth[Months::October]   = 31;
   daysOfMonth[Months::November]  = 30;
   daysOfMonth[Months::December]  = 31;
+}
+
+void DateTime::InitMonthNames( )
+{
+  monthNames[Months::January]    = "January";
+  monthNames[Months::February]   = "February";
+  monthNames[Months::March]      = "March";
+  monthNames[Months::April]      = "April";
+  monthNames[Months::May]        = "May";
+  monthNames[Months::June]       = "June";
+  monthNames[Months::July]       = "July";
+  monthNames[Months::August]     = "August";
+  monthNames[Months::September]  = "September";
+  monthNames[Months::October]    = "October";
+  monthNames[Months::November]   = "November";
+  monthNames[Months::December]   = "December";
+}
+
+void DateTime::InitDayNames( )
+{
+  dayNames[Days::Monday]         = "Monday";
+  dayNames[Days::Thuesday]       = "Thuesday";
+  dayNames[Days::Wednesday]      = "Wednesday";
+  dayNames[Days::Thursday]       = "Thursday";
+  dayNames[Days::Friday]         = "Friday";
+  dayNames[Days::Saturday]       = "Saturday";
+  dayNames[Days::Sunday]         = "Sunday";
 }
 
 DateTime::~DateTime( ) { }
@@ -224,6 +297,30 @@ void DateTime::operator+=( const TimeSpan &ts )
 
 //void DateTime::operator-=( const TimeSpan &ts );
 
+std::string DateTime::GetNameOfDay( int day )
+{
+  if( IsValidWeekday( day ) )
+  {
+    return dayNames[day - 1];
+  }
+  else
+  {
+    throw Exception( "Day %d is not in valid weekday range ( %d - %d )", day, MIN_WEEKDAY, MAX_WEEKDAY );
+  }
+}
+
+std::string DateTime::GetNameOfMonth( int month )
+{
+  if( IsValidMonth( month ) )
+  {
+    return monthNames[month - 1];
+  }
+  else
+  {
+    throw Exception( "Month %d is not in valid range ( %d - %d )", month, MIN_MONTH, MAX_MONTH );
+  }
+}
+
 std::string DateTime::GetAsString( )
 {
   return GetShortDateString( ) + std::string( " - " ) + GetShortTimeString( );
@@ -253,13 +350,13 @@ std::string DateTime::GetShortDateString( )
 std::string DateTime::GetLongDateString( )
 {
   std::stringstream ss( std::stringstream::in | std::stringstream::out );
-  ss << std::setfill( '0' ) << std::setw( 2 ) << day << "." << std::setw( 2 ) << month << "." << year;
+  ss << GetNameOfDay( GetDayOfWeek( ) ) << ", " << GetNameOfMonth( month ) << " " << day << ", " << year;
   return ss.str( );
 }
 
-bool DateTime::IsValidDay( int day )
+bool DateTime::IsValidWeekday( int day )
 {
-  return day >= 1 && day <= 31;
+  return day >= MIN_WEEKDAY && day <= MAX_WEEKDAY;
 }
 
 bool DateTime::IsValidDayOfMonth( int day, int month )
@@ -276,10 +373,30 @@ bool DateTime::IsValidDayOfMonth( int day, int month )
 
 bool DateTime::IsValidMonth( int month )
 {
-  return month >= 1 && month <= 12;
+  return month >= MIN_MONTH && month <= MAX_MONTH;
 }
 
 bool DateTime::IsValidYear( int year )
 {
   return year >= 0;
+}
+
+bool DateTime::IsValidHour( int hour )
+{
+  return hour >= MIN_HOUR && hour <= MAX_HOUR;
+}
+
+bool DateTime::IsValidMinute( int minute )
+{
+  return minute >= MIN_MINUTE && minute <= MAX_MINUTE;
+}
+
+bool DateTime::IsValidSecond( int second )
+{
+  return second >= MIN_SECOND && second <= MAX_SECOND;
+}
+
+bool DateTime::IsValidMillisecond( int millisecond )
+{
+  return millisecond >= MIN_MILLISECOND && millisecond <= MAX_MILLISECOND;
 }
