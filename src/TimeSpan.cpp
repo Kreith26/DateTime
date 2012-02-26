@@ -56,7 +56,7 @@ TimeSpan TimeSpan::FromDays( int days )
   return TimeSpan( days, 0, 0, 0, 0 );
 }
 
-double TimeSpan::GetTotalMilliseconds( ) const
+long long TimeSpan::GetTotalMilliseconds( ) const
 {
   return milliseconds + seconds * FACTOR_SEC_TO_MILLI + minutes * FACTOR_MIN_TO_MILLI + hours * FACTOR_HOUR_TO_MILLI + days * FACTOR_DAY_TO_MILLI;
 }
@@ -79,4 +79,29 @@ double TimeSpan::GetTotalHours( ) const
 double TimeSpan::GetTotalDays( ) const
 {
   return GetTotalHours( ) / FACTOR_DAY_TO_HOUR;
+}
+
+bool TimeSpan::operator<( const TimeSpan &ts ) const
+{
+  return GetTotalMilliseconds( ) < ts.GetTotalMilliseconds( );
+}
+
+bool TimeSpan::operator>( const TimeSpan &ts ) const
+{
+  return GetTotalMilliseconds( ) > ts.GetTotalMilliseconds( );
+}
+
+bool TimeSpan::operator<=( const TimeSpan &ts ) const
+{
+  return GetTotalMilliseconds( ) <= ts.GetTotalMilliseconds( );
+}
+
+bool TimeSpan::operator>=( const TimeSpan &ts ) const
+{
+  return GetTotalMilliseconds( ) >= ts.GetTotalMilliseconds( );
+}
+
+bool TimeSpan::operator==( const TimeSpan &ts ) const
+{
+  return GetTotalMilliseconds( ) == ts.GetTotalMilliseconds( );
 }

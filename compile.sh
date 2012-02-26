@@ -10,6 +10,7 @@ case $1 in
     ;;
   clean)
     make clean
+    echo "Cleaned up"
     ;;
   build|*)
       cmake .

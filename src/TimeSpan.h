@@ -32,11 +32,17 @@ class TimeSpan
     int GetHours( ) const { return hours; }
     int GetDays( ) const { return days; }
 
-    double GetTotalMilliseconds( ) const;
+    long long GetTotalMilliseconds( ) const;
     double GetTotalSeconds( ) const;
     double GetTotalMinutes( ) const;
     double GetTotalHours( ) const;
     double GetTotalDays( ) const;
+
+    bool operator<( const TimeSpan &ts ) const;
+    bool operator>( const TimeSpan &ts ) const;
+    bool operator<=( const TimeSpan &ts ) const;
+    bool operator>=( const TimeSpan &ts ) const;
+    bool operator==( const TimeSpan &ts ) const;
 
   protected:
     void Init( int days, int hours, int minutes, int seconds, int milliseconds);
