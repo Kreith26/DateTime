@@ -194,8 +194,15 @@ void DateTime::AddMonths( int months )
 
 void DateTime::AddDays( int days )
 {
-  AddMonths( days / MAX_DAY );
-  day += days % MAX_DAY;
+	while(days > 0){
+		if(days > _DaysOfMonth[_Month - 1]){
+			days = days - (_DaysOfMonth[_Month - 1] - _Day);
+			_Day = 0;
+			AddMonths(1);
+		}else{
+			_Day = days;
+			days = 0;
+		}
 }
 
 void DateTime::AddHours( int hours )
@@ -252,7 +259,7 @@ int DateTime::GetDayOfYear( )
 
 int DateTime::GetDaysOfMonth( int month )
 {
-  return IsValidMonth( month ) ? daysOfMonth[month] : -1;
+  return IsValidMonth( month ) ? daysOfMonth[month -1] : -1;
 }
 
 bool DateTime::operator<( const DateTime &dt ) const
