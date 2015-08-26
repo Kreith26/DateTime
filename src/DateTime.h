@@ -107,8 +107,8 @@ class DateTime
     void AddSeconds( int seconds );
     void AddMilliseconds( int milliseconds );
 
-    bool IsSummertime( ) { return IsYearLeapYear( year ); }
-    bool IsLeapYear( ) { return IsDateSummertime( day, month ); }
+    bool IsSummertime( ) { return IsDateSummertime( day, month ); }
+    bool IsLeapYear( ) { return IsYearLeapYear( year ); }
 
     static bool IsDateSummertime( int day, int month );
     static bool IsYearLeapYear( int year );
