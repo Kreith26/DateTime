@@ -194,15 +194,20 @@ void DateTime::AddMonths( int months )
 
 void DateTime::AddDays( int days )
 {
-	while(days > 0){
-		if(days > daysOfMonth[month - 1]){
+	while(days > 0)
+	{
+		if(days > daysOfMonth[month - 1])
+		{
 			days = days - (daysOfMonth[month - 1] - day);
 			day = 0;
 			AddMonths(1);
-		}else{
+		}
+		else
+		{
 			day = days;
 			days = 0;
 		}
+  }
 }
 
 void DateTime::AddHours( int hours )
